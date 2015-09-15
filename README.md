@@ -3,11 +3,14 @@ Controlling LiFX bulbs using command line. Supports colour setting with 2.0 firm
 
 Supported actions
 -----
-Colour setting via including hue, saturation, brightness and temperature. Sends packet multiple times based on the retries defined in the file itself.
+Colour setting via including hue, saturation, brightness and temperature. Sends packet multiple times based on the retries defined in the file itself. Hue ranges between 0-360, saturation and brightness between 0 and 100 and temperature between 2500 and 9000.
 
 Example usage
 ----
+
+Setting hue to 120, saturation to 50, brightness to 100 and temperature to 3500K
 ```./set_colour.py 192.168.2.222 120 50 100 3500```
+
 
 Requirements
 -----
