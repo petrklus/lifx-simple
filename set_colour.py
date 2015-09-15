@@ -71,7 +71,6 @@ if __name__ == "__main__":
         print "Testing K"
         for x in range(10):
             set_HSBK(bulb_ip, 360, 0, 100, 6500/10*x+2500)
-            # sock.sendto(gen_packet(360, 0, 100,6500/10*x+2500), (bulb_ip, UDP_PORT))
             time.sleep(0.3)
     else:
         bulb_ip            = sys.argv[1]
