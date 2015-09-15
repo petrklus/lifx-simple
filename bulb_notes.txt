@@ -1,0 +1,5 @@
+192.168.2.219  	d0:73:d5:00:cd:3f  	LIFX_koule_sklenena
+192.168.2.220  	d0:73:d5:01:0f:e5  	LIFX_Living_Mood
+192.168.2.221  	d0:73:d5:01:12:26  	LIFX_Koule_Sklenena_2
+192.168.2.222  	d0:73:d5:00:07:2c  	LIFX_Office
+192.168.2.223  	d0:73:d5:01:da:fb  	LIFX_Dining_table
