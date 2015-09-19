@@ -31,27 +31,9 @@ def set_colour(**kwargs):
         kwargs[key] = float(kwargs[key])
         print key, kwargs[key]
     
-    seq_num = get_seq_num() 
-    print "seq num", seq_num
+    command_q.put(kwargs)
     
-    
-    for _ in range(RETRIES):
-        with send_lock:
-            sock.sendto(
-                tools.gen_packet(kwargs["hue"], kwargs["sat"], kwargs["bri"], kwargs["kel"], seq_num), 
-                (kwargs["bulb_ip"], UDP_PORT))
-        
-        # wait...
-        time.sleep(DELAY)
-        
-        # do we have ACK?
-        if time.time() - ACKS[seq_num] < MAX_ACK_AGE:
-            print "ACK confirmed, no more retries needed"
-            break
-        
-        
-    
-    return "OK"
+    return "ENQUEUED"
 
 
 @btl.route('/hello')
@@ -82,12 +64,31 @@ def packet_listener():
             print "Unable to process packet from: {}, (error {})".format(addr, e)
 
 
-send_lock = threading.Lock()
-ommand_q = Queue.Queue(maxsize=2)
-
 def command_sender():
-    ommand_q = Queue.Queue(maxsize=2)
 
+    while True:
+        try:
+            kwargs = command_q.get()
+            seq_num = get_seq_num() 
+            print "seq num", seq_num
+               
+            for _ in range(RETRIES):
+                with send_lock:
+                    sock.sendto(
+                        tools.gen_packet(kwargs["hue"], kwargs["sat"], kwargs["bri"], kwargs["kel"], seq_num), 
+                        (kwargs["bulb_ip"], UDP_PORT))
+        
+                # wait...
+                time.sleep(DELAY)
+        
+                # do we have ACK?
+                if time.time() - ACKS[seq_num] < MAX_ACK_AGE:
+                    print "ACK confirmed, no more retries needed"
+                    break
+    
+        except Exception, e:
+            print "Unable to process command: {}".format(e)
+    
 
 if __name__ == "__main__":
 
@@ -99,6 +100,12 @@ if __name__ == "__main__":
     
     # listen for lifx packets
     sock.bind((UDP_IP, UDP_PORT))
+    
+    
+    # coordination objects - lock and command queue
+    send_lock = threading.Lock()
+    command_q = Queue.Queue(maxsize=5)
+    
     
     t = threading.Thread(target=packet_listener)
     t.daemon = True
