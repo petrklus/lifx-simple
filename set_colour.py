@@ -1,68 +1,40 @@
 #!/usr/bin/env python
 
 """
-Initial setup - how many retries to use and what is the time between them
+Simple implementation of colour-sending functionality, without any 
 """
 RETRIES  = 5
 DELAY    = 0.05
 UDP_PORT = 56700
 
 
-from struct import pack
 import socket
 import time
 import sys
 import random
 
-# different for each execution
+from tools import gen_packet
+
 SEQ_NUM = random.randint(0, 255)
 
-def gen_packet(hue, sat, bri, kel):
-    if hue < 0 or hue > 360:
-        raise Exception("Invalid hue")
-    if sat < 0 or sat > 100:
-        raise Exception("Invalid sat")
-    if bri < 0 or bri > 100:
-        raise Exception("Invalid bri")
-    if bri < 0 or bri > 100:
-        raise Exception("Invalid bri")        
-    
-    calc_hue = lambda hue: int(hue / 360.0 * 65535) #degrees
-    calc_sat = lambda sat: int(sat / 100.0 * 65535) #percentage
-    calc_bri = lambda bri: int(bri / 100.0 * 65535) #percentage
-    
-    """               \x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"""
-    packet = "\x31\x00\x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
-    
-    packet += pack(">B",3) # we actually want 6 bits of padding and 2 bits of 1s, not to encode in little endian
-    
-    packet += pack("<B",SEQ_NUM) #sequence number
-    packet += "\x00\x00\x00\x00\x00\x00\x00\x00\x66\x00\x00\x00\x00"
-    packet += pack("<H",calc_hue(hue))
-    packet += pack("<H",calc_sat(sat))
-    packet += pack("<H",calc_bri(bri))
-    packet += pack("<H",int(kel))
-
-    transition_time = pack("<L", 100)
-    packet += transition_time+"\x00"
-    
-    return packet
-
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP    
 def set_HSBK(bulb_ip, hue, sat, bri, kel=3500):
-    # make it a bit more reliable..
     print hue, sat, bri, kel    
     for _ in range(RETRIES):
-        sock.sendto(gen_packet(hue, sat, bri,kel), (bulb_ip, UDP_PORT))
+        sock.sendto(gen_packet(hue, sat, bri,kel,SEQ_NUM), (bulb_ip, UDP_PORT))
         time.sleep(DELAY)
 
 if __name__ == "__main__":
     print sys.argv
+        
+    # different for each execution
     
-
-    if len(sys.argv) == 1:
-        bulb_ip = "192.168.2.222"
+    print "Using sequence number:", SEQ_NUM
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP    
+    
+    bulb_ip = sys.argv[1]
+    
+    if len(sys.argv) == 2:
+        # demo        
         print "Testing H"
         for x in range(80):
             set_HSBK(bulb_ip, 360/80*x, 100, 100)        
