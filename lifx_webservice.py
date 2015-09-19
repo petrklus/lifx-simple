@@ -42,7 +42,7 @@ def hello():
 
 
 RETRIES       = 10
-DELAY         = 0.1
+DELAY         = 0.05
 UDP_PORT      = 56700
 UDP_IP        = "0.0.0.0"   # where to listen
 NO_OF_SENDERS = 3
@@ -71,20 +71,24 @@ def command_sender():
             kwargs = command_q.get()
             seq_num = get_seq_num() 
             print "seq num", seq_num
-               
-            for _ in range(RETRIES):
+            
+            ack = False
+            for i in range(RETRIES):
                 with send_lock:
                     sock.sendto(
                         tools.gen_packet(kwargs["hue"], kwargs["sat"], kwargs["bri"], kwargs["kel"], seq_num), 
                         (kwargs["bulb_ip"], UDP_PORT))
         
                 # wait...
-                time.sleep(DELAY)
+                time.sleep(DELAY*(i*1.5+1))
         
                 # do we have ACK?
                 if time.time() - ACKS[seq_num] < MAX_ACK_AGE:
+                    ack = True
                     print "ACK confirmed, no more retries needed"
                     break
+            if not ack:
+                print "Unable to ACK packet with seq num", seq_num
     
         except Exception, e:
             print "Unable to process command: {}".format(e)

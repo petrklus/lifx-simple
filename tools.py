@@ -26,7 +26,7 @@ def gen_packet(hue, sat, bri, kel, seq_num):
     packet += pack("<H",calc_bri(bri))
     packet += pack("<H",int(kel))
 
-    transition_time = pack("<L", 100)
+    transition_time = pack("<L", 200)
     packet += transition_time+"\x00"
     
     return packet
