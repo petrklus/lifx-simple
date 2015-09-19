@@ -12,6 +12,10 @@ from struct import pack
 import socket
 import time
 import sys
+import random
+
+# different for each execution
+SEQ_NUM = random.randint(0, 255)
 
 def gen_packet(hue, sat, bri, kel):
     if hue < 0 or hue > 360:
@@ -27,7 +31,13 @@ def gen_packet(hue, sat, bri, kel):
     calc_sat = lambda sat: int(sat / 100.0 * 65535) #percentage
     calc_bri = lambda bri: int(bri / 100.0 * 65535) #percentage
     
-    packet = "\x31\x00\x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x66\x00\x00\x00\x00"
+    """               \x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"""
+    packet = "\x31\x00\x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+    
+    packet += pack(">B",3) # we actually want 6 bits of padding and 2 bits of 1s, not to encode in little endian
+    
+    packet += pack("<B",SEQ_NUM) #sequence number
+    packet += "\x00\x00\x00\x00\x00\x00\x00\x00\x66\x00\x00\x00\x00"
     packet += pack("<H",calc_hue(hue))
     packet += pack("<H",calc_sat(sat))
     packet += pack("<H",calc_bri(bri))
