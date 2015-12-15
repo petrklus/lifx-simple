@@ -3,13 +3,13 @@ from struct import pack
 
 def gen_packet(hue, sat, bri, kel, seq_num):
     if hue < 0 or hue > 360:
-        raise Exception("Invalid hue")
+        raise Exception("Invalid hue: 0-360")
     if sat < 0 or sat > 100:
-        raise Exception("Invalid sat")
+        raise Exception("Invalid sat: 0-100")
     if bri < 0 or bri > 100:
-        raise Exception("Invalid bri")
-    if bri < 0 or bri > 100:
-        raise Exception("Invalid bri")        
+        raise Exception("Invalid bri: 0-100")
+    if kel < 2500 or bri > 9000:
+        raise Exception("Invalid kel: 2500-9000")        
     
     calc_hue = lambda hue: int(hue / 360.0 * 65535) #degrees
     calc_sat = lambda sat: int(sat / 100.0 * 65535) #percentage
