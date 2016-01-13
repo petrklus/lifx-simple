@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 """
-Simple implementation of colour-sending functionality, without any 
+Simple implementation of colour-sending functionality, 
+without the ACK/retry functionality. Send only, no listen.
+
+Author: Petr Klus
 """
 RETRIES  = 5
 DELAY    = 0.05
