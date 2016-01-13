@@ -1,5 +1,10 @@
 from struct import pack
 
+"""
+LiFX packet generator
+
+Author: Petr Klus
+"""
 
 def gen_packet(hue, sat, bri, kel, seq_num):
     if hue < 0 or hue > 360:
