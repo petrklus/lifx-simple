@@ -2,6 +2,11 @@ import socket
 import StringIO
 import struct
 
+"""
+LiFX test receiver
+
+Author: Petr Klus
+"""
 
 def process_incoming_data(data, addr):    
     sio = StringIO.StringIO(data)
