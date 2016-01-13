@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 
+"""
+Web-service wrapper that includes retries for non-ACKed packets.
+
+Author: Petr Klus
+"""
+
 import bottle as btl
 import threading
 import socket
