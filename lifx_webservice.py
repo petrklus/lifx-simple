@@ -12,7 +12,11 @@ import socket
 import time
 import tools
 import receive
-import Queue
+try:
+    from queue import Queue
+except ImportError:  # python 2
+    from Queue import Queue
+
 # seqnum generator
 
 def get_seq_num_fun():     
@@ -31,11 +35,11 @@ def get_seq_num_fun():
 @btl.route('/<bulb_ip>/<hue>/<sat>/<bri>/<kel>')
 def set_colour(**kwargs):
     
-    print kwargs["bulb_ip"]
     
+    print(kwargs["bulb_ip"])
     for key in ["hue", "sat", "bri", "kel"]:
         kwargs[key] = float(kwargs[key])
-        print key, kwargs[key]
+        print(key, kwargs[key])
     
     command_q.put(kwargs)
     
@@ -55,19 +59,19 @@ NO_OF_SENDERS = 3
 MAX_ACK_AGE   = 1           # maximum ACK age
 
 
-ACKS = [0.0 for _ in xrange(256)]
+ACKS = [0.0 for _ in range(256)]
 
 def packet_listener():        
     while True:
         data, addr = sock.recvfrom(1024) # buffer size is 1024 bytes        
         try:
             response = receive.process_incoming_data(data, addr)
-            print response
+            print(response)
             if response["packet_id"] == 45:                
                 ACKS[response["seqnum"]] = time.time()
             
-        except Exception, e:
-            print "Unable to process packet from: {}, (error {})".format(addr, e)
+        except Exception as e:
+            print("Unable to process packet from: {}, (error {})".format(addr, e))
 
 
 def command_sender():
@@ -76,8 +80,8 @@ def command_sender():
         try:
             kwargs = command_q.get()
             seq_num = get_seq_num() 
-            print "seq num", seq_num
             
+            print("seq num", seq_num)
             ack = False
             for i in range(RETRIES):
                 with send_lock:
@@ -91,14 +95,13 @@ def command_sender():
                 # do we have ACK?
                 if time.time() - ACKS[seq_num] < MAX_ACK_AGE:
                     ack = True
-                    print "ACK confirmed, no more retries needed"
+                    print("ACK confirmed, no more retries needed")
                     break
             if not ack:
-                print "Unable to ACK packet with seq num", seq_num
-    
-        except Exception, e:
-            print "Unable to process command: {}".format(e)
-    
+                print("Unable to ACK packet with seq num", seq_num)
+
+        except Exception as e:
+            print("Unable to process command: {}".format(e))
 
 if __name__ == "__main__":
 
@@ -114,7 +117,7 @@ if __name__ == "__main__":
     
     # coordination objects - lock and command queue
     send_lock = threading.Lock()
-    command_q = Queue.Queue(maxsize=5)
+    command_q = Queue(maxsize=5)
     
     
     t = threading.Thread(target=packet_listener)
@@ -122,7 +125,7 @@ if __name__ == "__main__":
     t.start()
     
     # spawn command sending thread
-    for _ in xrange(NO_OF_SENDERS):    
+    for _ in range(NO_OF_SENDERS):
         t = threading.Thread(target=command_sender)
         t.daemon = True
         t.start()

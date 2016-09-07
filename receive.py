@@ -1,5 +1,5 @@
 import socket
-import StringIO
+import io
 import struct
 
 """
@@ -9,15 +9,15 @@ Author: Petr Klus
 """
 
 def process_incoming_data(data, addr):    
-    sio = StringIO.StringIO(data)
     
     size, = struct.unpack("<H", sio.read(2))    
+    sio = io.BytesIO(data)
     sec_part, = struct.unpack("<H",sio.read(2))
     
     protocol = sec_part % 4096
     
     if protocol != 1024:
-        print "Not LiFX packet"
+        print("Not LiFX packet")
         return {
             "packet_id" : "-1",
             "message"   : "Not LiFX protocol"
@@ -33,15 +33,15 @@ def process_incoming_data(data, addr):
     
     if payloadtype == 45:
         # ACK
-        print "Packet with seqnum", seqnum, "ACKed"        
+        print("Packet with seqnum", seqnum, "ACKed")
         return {
             "packet_id" : payloadtype,
             "seqnum"    : seqnum,
         }
         
     elif payloadtype == 107:
-        print "Light state received with seqnum", seqnum
-        print "MSG:",size, protocol, payloadtype
+        print("Light state received with seqnum", seqnum)
+        print("MSG:",size, protocol, payloadtype)
         return {
             "packet_id" : payloadtype,
             "seqnum"    : seqnum,
