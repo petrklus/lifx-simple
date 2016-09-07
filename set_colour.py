@@ -6,11 +6,6 @@ without the ACK/retry functionality. Send only, no listen.
 
 Author: Petr Klus
 """
-RETRIES  = 5
-DELAY    = 0.05
-UDP_PORT = 56700
-
-
 import socket
 import time
 import sys
@@ -18,12 +13,17 @@ import random
 
 from tools import gen_packet
 
+RETRIES = 5
+DELAY = 0.05
+UDP_PORT = 56700
 SEQ_NUM = random.randint(0, 255)
+
 
 def set_HSBK(bulb_ip, hue, sat, bri, kel=3500):
     print(hue, sat, bri, kel)
     for _ in range(RETRIES):
-        sock.sendto(gen_packet(hue, sat, bri,kel,SEQ_NUM), (bulb_ip, UDP_PORT))
+        sock.sendto(gen_packet(hue, sat, bri, kel, SEQ_NUM),
+                    (bulb_ip, UDP_PORT))
         time.sleep(DELAY)
 
 if __name__ == "__main__":
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # different for each execution
 
     print("Using sequence number:", SEQ_NUM)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # UDP
 
     bulb_ip = sys.argv[1]
 
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             set_HSBK(bulb_ip, 360, 0, 100, 6500/10*x+2500)
             time.sleep(0.3)
     else:
-        bulb_ip            = sys.argv[1]
+        bulb_ip = sys.argv[1]
         hue, sat, bri, kel = map(int, sys.argv[2:])
 
         set_HSBK(bulb_ip, hue, sat, bri, kel)
