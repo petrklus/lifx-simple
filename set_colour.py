@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Simple implementation of colour-sending functionality, 
+Simple implementation of colour-sending functionality,
 without the ACK/retry functionality. Send only, no listen.
 
 Author: Petr Klus
@@ -30,17 +30,17 @@ if __name__ == "__main__":
     print(sys.argv)
 
     # different for each execution
-    
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP    
-    
+
     print("Using sequence number:", SEQ_NUM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+
     bulb_ip = sys.argv[1]
-    
+
     if len(sys.argv) == 2:
-        # demo        
+        # demo
         print("Testing H")
         for x in range(80):
-            set_HSBK(bulb_ip, 360/80*x, 100, 100)        
+            set_HSBK(bulb_ip, 360/80*x, 100, 100)
             time.sleep(0.1)
 
         print("Testing S")
@@ -62,5 +62,3 @@ if __name__ == "__main__":
         hue, sat, bri, kel = map(int, sys.argv[2:])
 
         set_HSBK(bulb_ip, hue, sat, bri, kel)
-    
-    

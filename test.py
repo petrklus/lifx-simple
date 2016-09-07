@@ -19,8 +19,8 @@ def gen_packet(hue, sat, bri, kel):
     if bri < 0 or bri > 100:
         raise Exception("Invalid bri")
     if bri < 0 or bri > 100:
-        raise Exception("Invalid bri")        
-    
+        raise Exception("Invalid bri")
+
     calc_hue = lambda hue: int(hue / 360.0 * 65535) #degrees
     calc_sat = lambda sat: int(sat / 100.0 * 65535) #percentage
     calc_bri = lambda bri: int(bri / 100.0 * 65535) #percentage
@@ -37,7 +37,7 @@ def gen_packet(hue, sat, bri, kel):
     return packet
 
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP    
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
 def set_HSBK(bulb_ip, hue, sat, bri, kel=3500):
     # make it a bit more reliable..
     print(hue, sat, bri, kel)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         bulb_ip = "192.168.2.222"
         print("Testing H")
         for x in range(80):
-            set_HSBK(bulb_ip, 360/80*x, 100, 100)        
+            set_HSBK(bulb_ip, 360/80*x, 100, 100)
             time.sleep(0.1)
 
         print("Testing S")
@@ -74,7 +74,5 @@ if __name__ == "__main__":
     else:
         bulb_ip            = sys.argv[1]
         hue, sat, bri, kel = map(int, sys.argv[2:])
-        
+
         set_HSBK(bulb_ip, hue, sat, bri, kel)
-    
-    

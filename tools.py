@@ -14,8 +14,8 @@ def gen_packet(hue, sat, bri, kel, seq_num):
     if bri < 0 or bri > 100:
         raise Exception("Invalid bri: 0-100")
     if kel < 2500 or kel > 9000:
-        raise Exception("Invalid kel: 2500-9000")        
-    
+        raise Exception("Invalid kel: 2500-9000")
+
     calc_hue = lambda hue: int(hue / 360.0 * 65535) #degrees
     calc_sat = lambda sat: int(sat / 100.0 * 65535) #percentage
     calc_bri = lambda bri: int(bri / 100.0 * 65535) #percentage
@@ -23,7 +23,7 @@ def gen_packet(hue, sat, bri, kel, seq_num):
     packet = b"\x31\x00\x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
 
     packet += pack(">B",3) # we actually want 6 bits of padding and 2 bits of 1s, not to encode in little endian
-    
+
     packet += pack("<B",seq_num) #sequence number
     packet += b"\x00\x00\x00\x00\x00\x00\x00\x00\x66\x00\x00\x00\x00"
     packet += pack("<H",calc_hue(hue))
