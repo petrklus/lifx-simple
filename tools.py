@@ -1,10 +1,49 @@
-from struct import pack
+from struct import pack, unpack
 
 """
 LiFX packet generator
 
 Author: Petr Klus
 """
+
+MESSAGE_SET_COLOR = 102
+MESSAGE_SET_POWER = 117
+
+
+def gen_packet_universal(seq_num, message_type, payload):
+    # size
+    #packet = b"\x31\x00"
+
+    # binary field
+    packet = b"\x00\x34"
+
+    # source
+    packet += b"\x00\x00\x00\x00"
+
+    # frame address
+    packet += b"\x00\x00\x00\x00\x00\x00\x00\x00"
+
+    # reserved section
+    packet += b"\x00\x00\x00\x00\x00\x00"  # NOQA
+
+    # we actually want 6 bits of padding and 2 bits of 1s,
+    # res_required and ack_required
+    packet += pack(">B", 3)
+
+    packet += pack("<B", seq_num)  # sequence number
+
+    # protocol header
+    packet += b"\x00\x00\x00\x00\x00\x00\x00\x00" # padding
+    packet += pack("<H", message_type)   # type
+    packet += b"\x00\x00"   # padding
+
+    # payload
+    packet += payload
+
+    # finally, calculate size adjusting for the size information itself
+    packet = pack("<H", len(packet)+2) + packet + b"\x00"
+
+    return packet
 
 
 def gen_packet(hue, sat, bri, kel, seq_num):
@@ -26,20 +65,27 @@ def gen_packet(hue, sat, bri, kel, seq_num):
     def calc_bri(bri):
         return int(bri / 100.0 * 65535)  # percentage
 
-    packet = b"\x31\x00\x00\x34\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"  # NOQA
-
-    # we actually want 6 bits of padding and 2 bits of 1s,
-    # not to encode in little endian
-    packet += pack(">B", 3)
-
-    packet += pack("<B", seq_num)  # sequence number
-    packet += b"\x00\x00\x00\x00\x00\x00\x00\x00\x66\x00\x00\x00\x00"
-    packet += pack("<H", calc_hue(hue))
-    packet += pack("<H", calc_sat(sat))
-    packet += pack("<H", calc_bri(bri))
-    packet += pack("<H", int(kel))
+    payload = b"\x00"
+    payload += pack("<H", calc_hue(hue))
+    payload += pack("<H", calc_sat(sat))
+    payload += pack("<H", calc_bri(bri))
+    payload += pack("<H", int(kel))
 
     transition_time = pack("<L", 200)
-    packet += transition_time+b"\x00"
+    payload += transition_time
 
-    return packet
+    return gen_packet_universal(seq_num, MESSAGE_SET_COLOR, payload)
+
+
+def get_power_packet(seq_num, power_state):
+    if type(power_state) != type(True):
+        raise Exception("Invalid power state")
+
+    if power_state:
+        payload = pack(">H", 65535) # level - either 1 or 0
+    else:
+        payload = pack(">H", 0) # level - either 1 or 0
+
+    payload += pack("<L", 200) # duration
+
+    return gen_packet_universal(seq_num, MESSAGE_SET_POWER, payload)
