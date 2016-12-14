@@ -48,7 +48,7 @@ if __name__ == "__main__":
         set_colour_zones(bulb_ip, 0, 255, 60, 100, 100, 3500, tools.APPLY)
         time.sleep(1)
         for i in range(15):
-            set_colour_zones(bulb_ip, i, i, 30 if i%2 == 0 else 120, 100, 100, 3500, tools.NO_APPLY, 1)
+            set_colour_zones(bulb_ip, i, i, 30 if i%2 == 0 else 120, 100, 100, 2500, tools.NO_APPLY, 1)
 
         set_colour_zones(bulb_ip, 15, 15, 60, 100, 100, 3500, tools.NO_APPLY)
         set_colour_zones(bulb_ip, 14, 14, 60, 0, 100, 6000, tools.APPLY_ONLY)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
         for i in range(16):
             draw_thingy(i)
-            time.sleep(0.05)
+            time.sleep(0.1)
 
         for i in range(16):
             draw_thingy(15-i)
